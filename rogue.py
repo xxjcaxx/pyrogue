@@ -4,8 +4,13 @@ import sys
 import time
 
 class pantalla(object):
+ 
+ celdas = []
+ direcciones = [(1,0),(-1,0),(0,1),(0,-1)]
+ d_actual = 0
 
  def __init__(self,t,salas):
+  self.t = t
   self.mundo = [['#' for x in range(t)] for x in range(t)]
   exitos = 0
   for s in range(0,salas):
@@ -35,11 +40,21 @@ class pantalla(object):
        self.mundo[i][j]='.'
   #print exitos
  def start_maze(self):
-     x = 1
-     y = 1
+     for i in range(1,self.t-1,2): # las y
+      for j in range(1,self.t-1): # las x
+          if self.mundo[i][j]=='#':
+            self.actual = [i,j]
+            return 0
+     for i in range(2,self.t-2,2):
+      for j in range(1,self.t-1,2):
+          if self.mundo[i][j]=='#':
+            self.actual = [i,j]
+            return 0
  
  def grow_maze(self):
-     self.mundo[randint(1,10)][randint(1,10)] = 'T'
+     self.mundo[self.actual[0]][self.actual[1]]='1'
+     celdas.append(actual)
+     # el tema de la diección y las dirección atual
 
  def print_pantalla(self):
   for i in self.mundo:
