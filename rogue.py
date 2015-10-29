@@ -41,20 +41,38 @@ class pantalla(object):
   #print exitos
  def start_maze(self):
      for i in range(1,self.t-1,2): # las y
-      for j in range(1,self.t-1): # las x
+      for j in range(1,self.t-1,2): # las x
+          #self.mundo[i][j]='k'
           if self.mundo[i][j]=='#':
             self.actual = [i,j]
             return 0
      for i in range(2,self.t-2,2):
       for j in range(1,self.t-1,2):
+          self.mundo[i][j]='k'
           if self.mundo[i][j]=='#':
             self.actual = [i,j]
             return 0
  
  def grow_maze(self):
-     self.mundo[self.actual[0]][self.actual[1]]='1'
-     celdas.append(actual)
-     # el tema de la diección y las dirección atual
+     x = self.actual[0]
+     y = self.actual[1]
+     self.mundo[x][y]='1'
+     self.celdas.append(self.actual)
+     # el tema de la diección y las dirección actual
+     cavado = 0 # si ya he cavado en alguna direccion
+     d = self.d_actual
+     if randint(0,50)<20:
+         d = randint(0,4)
+     for i in range(0,4):
+         print self.direcciones[(d+i)%4]
+         if x+self.direcciones[(d+i)%4][0]>0 and x+self.direcciones[(d+i)%4][0]<self.t-1 and y+self.direcciones[(d+i)%4][1]>0 and y+self.direcciones[(d+i)%4][1]< self.t-1:
+          if cavado == 0 and self.mundo[x+self.direcciones[(d+i)%4][0]*2][y+self.direcciones[(d+i)%4][1]*2]=='#':
+            self.mundo[x+self.direcciones[(d+i)%4][0]][y+self.direcciones[(d+i)%4][1]]='1'
+            self.d_actual = (d+i)%4
+            self.actual = [x+self.direcciones[(d+i)%4][0]*2,y+self.direcciones[(d+i)%4][1]*2]
+            cavado = 1
+     #print self.celdas
+
 
  def print_pantalla(self):
   for i in self.mundo:
@@ -64,7 +82,7 @@ class pantalla(object):
 
 
 print 'Empezamos'
-p = pantalla(49,40)
+p = pantalla(49,2)
 print(chr(27) + "[2J")
 print(chr(27)+"[s"+chr(27)+"[0;0H")
 p.print_pantalla()
@@ -73,7 +91,7 @@ p.start_maze()
 while n < 1000:
     n = n+1
     p.grow_maze()
-    time.sleep(1)
+    time.sleep(0.1)
     print(chr(27)+"[s"+chr(27)+"[0;0H")
     p.print_pantalla()
 
