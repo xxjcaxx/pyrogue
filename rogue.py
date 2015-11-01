@@ -17,7 +17,7 @@ class pantalla(object):
   self.t = t
   self.mundo = [['#' for x in range(t)] for x in range(t)]
   exitos = 0
-  for s in range(0,salas):
+  for s in range(2,salas+2):
    cabe = 0
    intentos = 0
    while cabe == 0 and intentos < 1000: 
@@ -33,7 +33,7 @@ class pantalla(object):
      y=y-1
     for i in range(x-1,x+ax+1):
      for j in range(y-1,y+ay+1):
-      if self.mundo[i][j] == '.':
+      if self.mundo[i][j] != '#':
        chocan = 1
     if chocan == 0:
      cabe = 1
@@ -41,7 +41,7 @@ class pantalla(object):
      exitos = exitos + 1
      for i in range(x,x+ax):
       for j in range(y,y+ay):
-       self.mundo[i][j]='.'
+       self.mundo[i][j]=str(s)
   #print exitos
  def start_maze(self):
      for i in range(1,self.t-1,2): # las y
@@ -79,8 +79,8 @@ class pantalla(object):
       else:
           self.start_maze()
 #          print 'start'
-     print '                 '
-     print str(self.actual)+" "+str(len(self.celdas))+"                      "
+     #print '                 '
+     #print str(self.actual)+" "+str(len(self.celdas))+"                      "
 
  def print_pantalla(self):
   for i in self.mundo:
@@ -142,7 +142,7 @@ class pantalla(object):
              for d in self.direcciones:
                  if self.mundo[i+d[0]][j+d[1]] == '1':
                     unos = unos + 1
-                 if self.mundo[i+d[0]][j+d[1]] == '.':
+                 if self.mundo[i+d[0]][j+d[1]] not in  ['1','#','x']:
                     puntos = puntos + 1
              if (unos == 1 and puntos == 1) or puntos == 2 :
                  self.mundo[i][j] = 'x'
@@ -154,20 +154,23 @@ class pantalla(object):
 
  def pintar_unos(self,x,y):
         self.mundo[x][y]='1'
-        for i in range(x-1,x+1):
-         for j in range(y-1,y+1):
-          if self.mundo[i][j] == '.':
+        for i in range(x-1,x+2):
+         for j in range(y-1,y+2):
+          if self.mundo[i][j] not in ['1','#','x']:
              self.pintar_unos(i,j)
 
  def resolver_puertas(self):
      while self.detectar_puertas() > 0:
-        self.puerta = self.puerta[randint(0,len(self.puerta)-1)]
-        x = self.puerta[0]
-        y = self.puerta[1]
+        p = self.puerta[randint(0,len(self.puerta)-1)]
+        x = p[0]
+        y = p[1]
         self.pintar_unos(x,y) 
+        time.sleep(0.5)
+        print(chr(27)+"[s"+chr(27)+"[0;0H")
+        self.print_pantalla()
 
 print 'Empezamos'
-p = pantalla(49,20)
+p = pantalla(51,50)
 print(chr(27) + "[2J")
 print(chr(27)+"[s"+chr(27)+"[0;0H")
 p.print_pantalla()
@@ -180,7 +183,7 @@ while p.actual != 'fin':
 print(chr(27)+"[s"+chr(27)+"[0;0H")
 p.print_pantalla()
 
-time.sleep(5)
+time.sleep(0.5)
 
 p.resolver_puertas()   # no pinta los extremos y detecta dos puertas a veces          
  
