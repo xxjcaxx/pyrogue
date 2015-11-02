@@ -97,6 +97,8 @@ class pantalla(object):
  def print_pantalla_final(self):
   for i in self.mundo:
    for j in i:
+    if j[0] == '@':
+     sys.stdout.write(chr(27)+"[35m")
     if j[0] == '1':
      sys.stdout.write(chr(27)+"[37m")
     if j[0] == '.':
@@ -173,6 +175,8 @@ class pantalla(object):
                           # self.mundo[i][j] = ['x',0]
                            self.puerta.append([i,j,num])
                            n = n +1
+                           if randint(0,50)==1: # abrir puertas alternativas
+                              self.mundo[i][j]=['1',num]
                         else:
                            self.mundo[i][j] = ['#',0]
      return n
@@ -197,22 +201,59 @@ class pantalla(object):
 
         self.pintar_unos(x,y,n) 
         #time.sleep(0.1)
-        print(chr(27)+"[s"+chr(27)+"[0;0H")
-        self.print_pantalla()
+        #print(chr(27)+"[s"+chr(27)+"[0;0H")
+        #self.print_pantalla()
      self.pintar_unos(primera_puerta[0],primera_puerta[1],1)
+ 
+ pos_heroe = 0
+
+ def poner_personajes(self):
+     # primero el heroe
+     puesto = 0
+     while puesto == 0:
+       x = randint(1,self.t-1)
+       y = randint(1,self.t-1)
+       if self.mundo[x][y][0] == '1':
+          n = self.espunta(x,y)
+          if n < 2:
+             puesto = 1
+             self.mundo[x][y] = ['@',100,100]
+             self.pos_heroe = [x,y]
+
+ llaves = []
+
+ def pintar_puertas(self,x,y):
+     if self.mundo[x][y][0] == '1':
+        self.mundo[x][y]= ['1',-1]
+        if randint(0,100) == 1:
+            self.mundo[x][y] = ['&',randint(0,1000)]
+            self.llaves.append(self.mundo[x][y])
+        else:
+          if randint(0,50) == 1 and len(self.llaves)>0:
+                if self.espunta(x,y)==2:
+                   ll = self.llaves.pop()
+                   self.mundo[x][y] = ['+',ll[1]] 
+     for i in self.direcciones:
+           if self.mundo[x+i[0]][y+i[1]][0] == '1' and self.mundo[x+i[0]][y+i[1]][1] != -1:
+              self.pintar_puertas(x+i[0],y+i[1])
+         
+
+ def poner_puertas(self):
+     # se empieza en la posicion del heroe
+     self.pintar_puertas(self.pos_heroe[0],self.pos_heroe[1])
 
 print 'Empezamos'
-p = pantalla(51,5)
+p = pantalla(51,20)
 print(chr(27) + "[2J")
-print(chr(27)+"[s"+chr(27)+"[0;0H")
-p.print_pantalla()
+#print(chr(27)+"[s"+chr(27)+"[0;0H")
+#p.print_pantalla()
 n = 0
 p.start_maze()
 while p.actual != 'fin':
     n = n+1
     p.grow_maze()
 #    time.sleep(0.05)
-print(chr(27)+"[s"+chr(27)+"[0;0H")
+#print(chr(27)+"[s"+chr(27)+"[0;0H")
 #p.print_pantalla_debug()
 
 #time.sleep(0.5)
@@ -227,5 +268,11 @@ while len(p.puntas)>0:
 
 #print p.puntas
 
+p.poner_personajes() # buenos, malos, y el heroe
+#p.poner_armas        # armas y otros objetos que pueden ser utiles. Entre ellos el objetivo final
+p.poner_puertas()    # puertas y llaves
+
 print(chr(27)+"[s"+chr(27)+"[0;0H")
 p.print_pantalla_final()
+
+
