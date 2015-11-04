@@ -3,6 +3,7 @@ from random import randint
 import sys
 import time
 import threading
+import curses
 
 class pantalla(object):
  
@@ -94,18 +95,14 @@ class pantalla(object):
     sys.stdout.write(j[0]+' ')
     sys.stdout.write(chr(27)+"[0m")
    print ' '
- def print_pantalla_final(self):
-  for i in self.mundo:
-   for j in i:
-    if j[0] == '@':
-     sys.stdout.write(chr(27)+"[35m")
-    if j[0] == '1':
-     sys.stdout.write(chr(27)+"[37m")
-    if j[0] == '.':
-     sys.stdout.write(chr(27)+"["+str(j[1])+"m")
-    sys.stdout.write(j[0]+' ')
-    sys.stdout.write(chr(27)+"[0m")
-   print ' '
+ def print_pantalla_final(self,scr):
+  for x in range(0,self.t):
+   for y in range(0,self.t):
+    c = curses.color_pair(1)
+    if self.mundo[x][y][0] == '1':
+      c = curses.color_pair(2)
+    scr.addch(x,y*2,self.mundo[x][y][0],c)
+    
  def print_pantalla_debug(self):
   for i in self.mundo:
    for j in i:
@@ -242,9 +239,9 @@ class pantalla(object):
      # se empieza en la posicion del heroe
      self.pintar_puertas(self.pos_heroe[0],self.pos_heroe[1])
 
-print 'Empezamos'
-p = pantalla(51,20)
-print(chr(27) + "[2J")
+#print 'Empezamos'
+p = pantalla(51,50)
+#print(chr(27) + "[2J")
 #print(chr(27)+"[s"+chr(27)+"[0;0H")
 #p.print_pantalla()
 n = 0
@@ -272,7 +269,46 @@ p.poner_personajes() # buenos, malos, y el heroe
 #p.poner_armas        # armas y otros objetos que pueden ser utiles. Entre ellos el objetivo final
 p.poner_puertas()    # puertas y llaves
 
-print(chr(27)+"[s"+chr(27)+"[0;0H")
-p.print_pantalla_final()
+#print(chr(27)+"[s"+chr(27)+"[0;0H")
+#p.print_pantalla_final()
+
+# empieza el bucle del juego
+# podria a usar pygame, pero quiero que sea totalmente de terminal para usar unicode y emojis 
+stdscr = curses.initscr() # inicializar la pantall
+curses.noecho() # evitar que lo que escrives salga
+curses.cbreak() # detectar pulsaciones de teclas sin intro
+stdscr.keypad(1) # permitir usar las flechas y otras teclas especiales del teclado
+curses.start_color()
+curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK)
+curses.init_pair(2, curses.COLOR_BLACK, curses.COLOR_BLACK)
+
+while 1:
+    p.print_pantalla_final(stdscr)
+
+#pad = curses.newpad(100, 100)
+#  These loops fill the pad with letters; this is
+# explained in the next section
+#for y in range(0, 100):
+#    for x in range(0, 100):
+#        try:
+#            pad.addch(y,x, ord('a') + (x*x+y*y) % 26)
+#        except curses.error:
+#            pass
+
+#  Displays a section of the pad in the middle of the screen
+    c = stdscr.getch()
+    if c == ord('w'):
+       p.mundo[p.pos_heroe[0]][p.pos_heroe[1]]=['1',-1]
+       p.mundo[p.pos_heroe[0]-1][p.pos_heroe[1]]=['@',100]
+       p.pos_heroe[0]=p.pos_heroe[0]-1
+    elif c == ord('q'):
+        break  # Exit the while()
+    elif c == curses.KEY_HOME:
+        x = y = 0
+    stdscr.refresh()
+curses.nocbreak(); stdscr.keypad(0); curses.echo()
+curses.endwin()
+
+
 
 
