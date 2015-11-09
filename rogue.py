@@ -95,13 +95,21 @@ class pantalla(object):
     sys.stdout.write(j[0]+' ')
     sys.stdout.write(chr(27)+"[0m")
    print ' '
+
  def print_pantalla_final(self,scr):
   for x in range(0,self.t):
    for y in range(0,self.t):
     c = curses.color_pair(1)
+    #curses.init_pair(3+y, curses.COLOR_WHITE, y+35)
+    #d = curses.color_pair(3+y)
     if self.mundo[x][y][0] == '1':
       c = curses.color_pair(2)
+    if self.mundo[x][y][0] == '#':
+      c = curses.color_pair(3)
+    if self.mundo[x][y][0] == '@':
+      c = curses.color_pair(4)
     scr.addch(x,y*2,self.mundo[x][y][0],c)
+    scr.addch(x,y*2+1,' ',c)
     
  def print_pantalla_debug(self):
   for i in self.mundo:
@@ -240,7 +248,7 @@ class pantalla(object):
      self.pintar_puertas(self.pos_heroe[0],self.pos_heroe[1])
 
 #print 'Empezamos'
-p = pantalla(51,50)
+p = pantalla(49,30)
 #print(chr(27) + "[2J")
 #print(chr(27)+"[s"+chr(27)+"[0;0H")
 #p.print_pantalla()
@@ -279,23 +287,24 @@ curses.noecho() # evitar que lo que escrives salga
 curses.cbreak() # detectar pulsaciones de teclas sin intro
 stdscr.keypad(1) # permitir usar las flechas y otras teclas especiales del teclado
 curses.start_color()
-curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK)
-curses.init_pair(2, curses.COLOR_BLACK, curses.COLOR_BLACK)
-
+if curses.can_change_color()==True:
+   curses.init_color(10,800,800,800) # blanco
+   curses.init_color(11,0,0,0) # negro
+   curses.init_color(12,500,0,0) # Rojo
+   curses.init_color(13,200,200,200) # gris oscuro
+   curses.init_pair(1, 10, 11) # objetos
+   curses.init_pair(2, 11, 11) # suelo
+   curses.init_pair(3, 10, 13) # paredes
+   curses.init_pair(4, 12, 11) # player
+   curses.init_pair(5, 13, 11) # paredes ocultas
+else:
+   curses.nocbreak(); stdscr.keypad(0); curses.echo()
+   curses.endwin()
+   print 'Busca otra terminal que tenga más colores'
+   exit()
 while 1:
     p.print_pantalla_final(stdscr)
 
-#pad = curses.newpad(100, 100)
-#  These loops fill the pad with letters; this is
-# explained in the next section
-#for y in range(0, 100):
-#    for x in range(0, 100):
-#        try:
-#            pad.addch(y,x, ord('a') + (x*x+y*y) % 26)
-#        except curses.error:
-#            pass
-
-#  Displays a section of the pad in the middle of the screen
     c = stdscr.getch()
     if c == ord('w'):
        p.mundo[p.pos_heroe[0]][p.pos_heroe[1]]=['1',-1]
@@ -306,9 +315,11 @@ while 1:
     elif c == curses.KEY_HOME:
         x = y = 0
     stdscr.refresh()
+
 curses.nocbreak(); stdscr.keypad(0); curses.echo()
 curses.endwin()
 
 
-
-
+print curses.COLORS
+print curses.can_change_color()
+print curses.COLOR_PAIRS
