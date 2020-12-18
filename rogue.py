@@ -2,7 +2,7 @@
 from random import randint
 import sys
 import time
-import threading
+import threading   
 import curses
 from pantalla import pantalla
 from vista import vista
